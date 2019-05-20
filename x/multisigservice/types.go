@@ -9,4 +9,5 @@ type MultisigWallet struct {
 	Creator            sdk.AccAddress   `json:"creator"`
 	Owners             []sdk.AccAddress `json:"owners"`
 	RequiredSignatures sdk.Int          `json:"required_signatures"`
+	Address            sdk.AccAddress   `json:"address"`
 }
