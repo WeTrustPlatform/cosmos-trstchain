@@ -1,4 +1,4 @@
-module github.com/sihoang/cosmos-trstchain
+module github.com/WeTrustPlatform/cosmos-trstchain
 
 go 1.12
 
