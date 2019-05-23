@@ -1,11 +1,13 @@
 package app
 
 import (
+	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/x/auth"
-	"github.com/gogo/protobuf/codec"
+	"github.com/cosmos/cosmos-sdk/x/bank"
 	"github.com/tendermint/tendermint/libs/log"
 
 	bam "github.com/cosmos/cosmos-sdk/baseapp"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	dbm "github.com/tendermint/tendermint/libs/db"
 )
 
@@ -15,6 +17,7 @@ const (
 
 type trstChainApp struct {
 	*bam.BaseApp
+	cdc *codec.Codec
 }
 
 func NewTRSTChainApp(logger log.Logger, db dbm.DB) *trstChainApp {
@@ -32,6 +35,9 @@ func NewTRSTChainApp(logger log.Logger, db dbm.DB) *trstChainApp {
 
 func MakeCodec() *codec.Codec {
 	var cdc = codec.New()
-	//TODO HN implement this
+	auth.RegisterCodec(cdc)
+	bank.RegisterCodec(cdc)
+	sdk.RegisterCodec(cdc)
+	codec.RegisterCrypto(cdc)
 	return cdc
 }
