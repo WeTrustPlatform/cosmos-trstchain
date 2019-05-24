@@ -20,6 +20,8 @@ func NewHandler(keeper Keeper) sdk.Handler {
 }
 
 func handleMsgCreateWallet(ctx sdk.Context, keeper Keeper, msg MsgCreateWallet) sdk.Result {
-	//TODO Implement this
-	return sdk.Result{}
+	walletAddress := keeper.CreateWallet(ctx, msg.Creator, msg.Owners, msg.RequiredSignatures)
+	return sdk.Result{
+		Data: walletAddress.Bytes(),
+	}
 }

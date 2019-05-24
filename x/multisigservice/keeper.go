@@ -12,14 +12,12 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
+// Keeper is the data storage of the app
 type Keeper struct {
-	coinKeeper bank.Keeper
-
+	cdc           *codec.Codec
+	coinKeeper    bank.Keeper
 	accountKeeper auth.AccountKeeper
-
-	storeKey sdk.StoreKey
-
-	cdc *codec.Codec
+	storeKey      sdk.StoreKey
 }
 
 func (k Keeper) AddOwner(ctx sdk.Context, walletAddress sdk.AccAddress, owner sdk.AccAddress) {
@@ -72,11 +70,18 @@ func (k Keeper) CreateWallet(ctx sdk.Context, creator sdk.AccAddress, owners []s
 	return walletAddress
 }
 
-func NewKeeper(coinKeeper bank.Keeper, storeKey sdk.StoreKey, cdc *codec.Codec) Keeper {
+// NewKeeper creates new instances of the multisigservice Keeper
+func NewKeeper(
+	cdc *codec.Codec,
+	coinKeeper bank.Keeper,
+	accountKeeper auth.AccountKeeper,
+	storeKey sdk.StoreKey,
+) Keeper {
 	return Keeper{
-		coinKeeper: coinKeeper,
-		storeKey:   storeKey,
-		cdc:        cdc,
+		cdc:           cdc,
+		coinKeeper:    coinKeeper,
+		accountKeeper: accountKeeper,
+		storeKey:      storeKey,
 	}
 }
 
