@@ -1,17 +1,21 @@
 package multisigservice
 
 import (
-	"crypto/rand"
+	"crypto/sha256"
+	"fmt"
 
 	"github.com/cosmos/cosmos-sdk/codec"
+	"github.com/cosmos/cosmos-sdk/x/auth"
 	"github.com/cosmos/cosmos-sdk/x/bank"
-	"github.com/tendermint/tendermint/crypto/ed25519"
+	"github.com/ethereum/go-ethereum/rlp"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 type Keeper struct {
 	coinKeeper bank.Keeper
+
+	accountKeeper auth.AccountKeeper
 
 	storeKey sdk.StoreKey
 
@@ -34,15 +38,27 @@ func (k Keeper) SetRequiredSignatures(ctx sdk.Context, walletAddress sdk.AccAddr
 	//TODO Implement this
 }
 
+// CreateWallet creates a new multisig wallet and returns a generated AccAddress
 func (k Keeper) CreateWallet(ctx sdk.Context, creator sdk.AccAddress, owners []sdk.AccAddress, requiredSignatures sdk.Int) sdk.AccAddress {
 	if creator.Empty() {
 		return nil
 	}
 
-	var pub ed25519.PubKeyEd25519
-	// TODO Cannot randomly generate new address here!
-	rand.Read(pub[:])
-	walletAddress := sdk.AccAddress(pub.Address())
+	// If creator's acccount does not exist, sequence will be 0
+	sequence, _ := k.accountKeeper.GetSequence(ctx, creator)
+
+	walletAddress := DeriveAccAddress(creator, sequence)
+
+	newAccount := k.accountKeeper.NewAccountWithAddress(ctx, walletAddress)
+
+	if !walletAddress.Equals(newAccount.GetAddress()) {
+		panic(sdk.ErrUnknownAddress(
+			fmt.Sprintf(
+				"auth.AccountKeeper generates wrong address. Expected %s. Got %s.",
+				walletAddress,
+				newAccount.GetAddress(),
+			)))
+	}
 
 	multisigWallet := MultisigWallet{
 		Creator:            creator,
@@ -62,4 +78,20 @@ func NewKeeper(coinKeeper bank.Keeper, storeKey sdk.StoreKey, cdc *codec.Codec) 
 		storeKey:   storeKey,
 		cdc:        cdc,
 	}
+}
+
+// Helpers
+
+// DeriveAccAddress generates new AccAddress from a base address and a sequence
+// deterministically
+func DeriveAccAddress(creator sdk.AccAddress, sequence uint64) sdk.AccAddress {
+	encoded, err := rlp.EncodeToBytes([]interface{}{creator, sequence})
+
+	if err != nil {
+		panic(err)
+	}
+
+	hashed := sha256.Sum256(encoded)
+	// use the last 20 bytes per Ethereum specs
+	return sdk.AccAddress(hashed[12:])
 }
