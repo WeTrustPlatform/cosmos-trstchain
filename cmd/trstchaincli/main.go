@@ -61,7 +61,7 @@ func main() {
 	rootCmd.AddCommand(
 		rpc.StatusCommand(),
 		client.ConfigCmd(defaultCLIHome),
-		// queryCmd(cdc, mc),
+		queryCmd(cdc, mc),
 		txCmd(cdc, mc),
 		client.LineBreak,
 		lcd.ServeCommand(cdc, registerRoutes),
@@ -83,7 +83,32 @@ func registerRoutes(rs *lcd.RestServer) {
 	tx.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc)
 	auth.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc, storeAcc)
 	bank.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc, rs.KeyBase)
+	// TODO Implement MultisigService's REST client
 	//multisigservicerest.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc, storeMultisigService)
+}
+
+func queryCmd(cdc *amino.Codec, mc []sdk.ModuleClients) *cobra.Command {
+	queryCmd := &cobra.Command{
+		Use:     "query",
+		Aliases: []string{"q"},
+		Short:   "Querying subcommands",
+	}
+
+	queryCmd.AddCommand(
+		rpc.ValidatorCommand(cdc),
+		rpc.BlockCommand(),
+		tx.SearchTxCmd(cdc),
+		tx.QueryTxCmd(cdc),
+		client.LineBreak,
+		authcmd.GetAccountCmd(storeAcc, cdc),
+	)
+
+	for _, m := range mc {
+		// TODO Implement GetQueryCmd for MultisigService's client
+		// queryCmd.AddCommand(m.GetQueryCmd())
+	}
+
+	return queryCmd
 }
 
 func txCmd(cdc *amino.Codec, mc []sdk.ModuleClients) *cobra.Command {
