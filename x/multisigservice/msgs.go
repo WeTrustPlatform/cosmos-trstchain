@@ -53,3 +53,12 @@ func (msg MsgCreateWallet) GetSignBytes() []byte {
 func (msg MsgCreateWallet) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{msg.Creator}
 }
+
+// NewMsgCreateWallet creates new instances of MsgCreateWallet
+func NewMsgCreateWallet(creator sdk.AccAddress, owners []sdk.AccAddress, requiredSignatures sdk.Int) MsgCreateWallet {
+	return MsgCreateWallet{
+		Creator:            creator,
+		Owners:             owners,
+		RequiredSignatures: requiredSignatures,
+	}
+}

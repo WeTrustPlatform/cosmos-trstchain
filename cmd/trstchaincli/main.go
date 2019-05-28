@@ -15,6 +15,7 @@ import (
 	"github.com/tendermint/tendermint/libs/cli"
 
 	app "github.com/WeTrustPlatform/cosmos-trstchain"
+	multisigserviceclient "github.com/WeTrustPlatform/cosmos-trstchain/x/multisigservice/client"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authcmd "github.com/cosmos/cosmos-sdk/x/auth/client/cli"
 	auth "github.com/cosmos/cosmos-sdk/x/auth/client/rest"
@@ -42,7 +43,7 @@ func main() {
 	config.Seal()
 
 	mc := []sdk.ModuleClients{
-		//trstchainclient.NewModuleClient(storeMultisigService, cdc),
+		multisigserviceclient.NewModuleClient(storeMultisigService, cdc),
 	}
 
 	rootCmd := &cobra.Command{
@@ -60,7 +61,7 @@ func main() {
 	rootCmd.AddCommand(
 		rpc.StatusCommand(),
 		client.ConfigCmd(defaultCLIHome),
-		queryCmd(cdc, mc),
+		// queryCmd(cdc, mc),
 		txCmd(cdc, mc),
 		client.LineBreak,
 		lcd.ServeCommand(cdc, registerRoutes),
