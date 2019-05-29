@@ -31,7 +31,7 @@ import (
 )
 
 const (
-	flagOverWrite = "overwrite"
+	flagOverwrite = "overwrite"
 )
 
 // DefaultNodeHome sets the folder where the application data and configuration will be stored
@@ -60,13 +60,13 @@ func main() {
 	}
 }
 
-func newApp(logger log.logger, db dbm.DB, traceStore io.Writer) abci.Application {
+func newApp(logger log.Logger, db dbm.DB, traceStore io.Writer) abci.Application {
 	return app.NewTRSTChainApp(logger, db)
 }
 
 func appExporter() server.AppExporter {
 	return func(logger log.Logger, db dbm.DB, _ io.Writer, _ int64, _ bool, _ []string) (
-		json.RawMessage, []tmttypes.GenesisValidator, error) {
+		json.RawMessage, []tmtypes.GenesisValidator, error) {
 		dapp := app.NewTRSTChainApp(logger, db)
 		return dapp.ExportAppStateAndValidators()
 	}
@@ -95,7 +95,7 @@ func InitCmd(ctx *server.Context, cdc *codec.Codec) *cobra.Command {
 			var appState json.RawMessage
 			genFile := config.GenesisFile()
 
-			if !viper.GetBool(flagOverWrite) && common.FileExists(genFile) {
+			if !viper.GetBool(flagOverwrite) && common.FileExists(genFile) {
 				return fmt.Errorf("genesis.json file already exists: %v", genFile)
 			}
 
@@ -114,7 +114,7 @@ func InitCmd(ctx *server.Context, cdc *codec.Codec) *cobra.Command {
 				return err
 			}
 
-			if err = gaiaInit.ExportGenesisFile(genFile, chainID, []tmttypes.GenesisValidator{validator}, appState); err != nil {
+			if err = gaiaInit.ExportGenesisFile(genFile, chainID, []tmtypes.GenesisValidator{validator}, appState); err != nil {
 				return err
 			}
 

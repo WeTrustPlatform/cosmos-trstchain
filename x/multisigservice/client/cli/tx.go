@@ -1,6 +1,8 @@
 package cli
 
 import (
+	"errors"
+
 	"github.com/WeTrustPlatform/cosmos-trstchain/x/multisigservice"
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/client/utils"
@@ -16,7 +18,7 @@ func GetCmdCreateWallet(cdc *codec.Codec) *cobra.Command {
 	return &cobra.Command{
 		Use:   "create-wallet [required signatures] [owner[,owner]...]",
 		Short: "Create a new multisig wallet",
-		Args:  cobra.ExactValidArgs(3),
+		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc).WithAccountDecoder(cdc)
 			txBldr := authtxb.NewTxBuilderFromCLI().WithTxEncoder(utils.GetTxEncoder(cdc))
@@ -30,10 +32,15 @@ func GetCmdCreateWallet(cdc *codec.Codec) *cobra.Command {
 				return err
 			}
 
+			requiredSignatures, ok := sdk.NewIntFromString(args[0])
+			if !ok {
+				return errors.New("Cannot parse requiredSignatures to sdk.Int")
+			}
+
 			msg := multisigservice.NewMsgCreateWallet(
 				cliCtx.GetFromAddress(),
 				addresses,
-				args[0],
+				requiredSignatures,
 			)
 
 			err = msg.ValidateBasic()
@@ -46,4 +53,9 @@ func GetCmdCreateWallet(cdc *codec.Codec) *cobra.Command {
 			return utils.GenerateOrBroadcastMsgs(cliCtx, txBldr, []sdk.Msg{msg}, false)
 		},
 	}
+}
+
+func ParseAddresses(a string) ([]sdk.AccAddress, error) {
+	// TODO Implement this
+	return nil, nil
 }

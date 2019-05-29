@@ -31,3 +31,9 @@ func (mc ModuleClient) GetTxCmd() *cobra.Command {
 
 	return multisigserviceTxCmd
 }
+
+// GetQueryCmd returns the cli query commands for this module
+func (mc ModuleClient) GetQueryCmd() *cobra.Command {
+	// TODO Implement this
+	return nil
+}

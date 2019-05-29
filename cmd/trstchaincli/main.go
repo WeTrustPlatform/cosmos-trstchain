@@ -80,7 +80,7 @@ func registerRoutes(rs *lcd.RestServer) {
 	rs.CliCtx = rs.CliCtx.WithAccountDecoder(rs.Cdc)
 	rpc.RegisterRoutes(rs.CliCtx, rs.Mux)
 	tx.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc)
-	auth.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc, storeAcc)
+	auth.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc, storeAccount)
 	bank.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc, rs.KeyBase)
 	// TODO Implement MultisigService's REST client
 	//multisigservicerest.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc, storeMultisigService)
@@ -99,10 +99,10 @@ func queryCmd(cdc *amino.Codec, mc []sdk.ModuleClients) *cobra.Command {
 		tx.SearchTxCmd(cdc),
 		tx.QueryTxCmd(cdc),
 		client.LineBreak,
-		authcmd.GetAccountCmd(storeAcc, cdc),
+		authcmd.GetAccountCmd(storeAccount, cdc),
 	)
 
-	for _, m := range mc {
+	for range mc {
 		// TODO Implement GetQueryCmd for MultisigService's client
 		// queryCmd.AddCommand(m.GetQueryCmd())
 	}
