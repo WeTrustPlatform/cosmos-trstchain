@@ -2,11 +2,13 @@ package cli
 
 import (
 	"errors"
+	"strings"
 
 	"github.com/WeTrustPlatform/cosmos-trstchain/x/multisigservice"
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/client/utils"
 	"github.com/cosmos/cosmos-sdk/codec"
+	"github.com/cosmos/cosmos-sdk/types"
 	"github.com/spf13/cobra"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -55,7 +57,23 @@ func GetCmdCreateWallet(cdc *codec.Codec) *cobra.Command {
 	}
 }
 
-func ParseAddresses(a string) ([]sdk.AccAddress, error) {
-	// TODO Implement this
-	return nil, nil
+// ParseAddresses returns array of AccAddresses from the CLI arg
+func ParseAddresses(input string) ([]sdk.AccAddress, error) {
+	input = strings.TrimSpace(input)
+
+	if len(input) == 0 {
+		return nil, errors.New("Owners array cannot be empty")
+	}
+
+	addrStrs := strings.Split(input, ",")
+	accAddresses := make([]sdk.AccAddress, len(addrStrs))
+	for i, addrStr := range addrStrs {
+		accAddr, err := types.AccAddressFromBech32(addrStr)
+		if err != nil {
+			panic(err)
+		}
+		accAddresses[i] = accAddr
+	}
+
+	return accAddresses, nil
 }
