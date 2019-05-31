@@ -21,7 +21,7 @@ func NewModuleClient(storeKey string, cdc *amino.Codec) ModuleClient {
 // GetTxCmd returns the transaction commands for this module
 func (mc ModuleClient) GetTxCmd() *cobra.Command {
 	multisigserviceTxCmd := &cobra.Command{
-		Use:   "multisigervice",
+		Use:   "multisigservice",
 		Short: "Multisigservice transactions subcommands",
 	}
 
@@ -34,6 +34,16 @@ func (mc ModuleClient) GetTxCmd() *cobra.Command {
 
 // GetQueryCmd returns the cli query commands for this module
 func (mc ModuleClient) GetQueryCmd() *cobra.Command {
-	// TODO Implement this
-	return nil
+
+	// Group nameservice queries under a subcommand
+	multisigserviceQueryCmd := &cobra.Command{
+		Use:   "multisigservice",
+		Short: "Querying commands for the multisigservice module",
+	}
+
+	multisigserviceQueryCmd.AddCommand(client.GetCommands(
+		cli.GetCmdWallet(mc.storeKey, mc.cdc),
+	)...)
+
+	return multisigserviceQueryCmd
 }

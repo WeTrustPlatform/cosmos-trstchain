@@ -36,6 +36,20 @@ func (k Keeper) SetRequiredSignatures(ctx sdk.Context, walletAddress sdk.AccAddr
 	//TODO Implement this
 }
 
+// GetWalletFromBech32 returns MultisigWallet instance
+func (k Keeper) GetWalletFromBech32(ctx sdk.Context, addr string) MultisigWallet {
+	accAddr, err := sdk.AccAddressFromBech32(addr)
+	if err != nil {
+		panic(err)
+	}
+
+	store := ctx.KVStore(k.storeKey)
+	bz := store.Get(accAddr)
+	var wallet MultisigWallet
+	k.cdc.MustUnmarshalBinaryBare(bz, &wallet)
+	return wallet
+}
+
 // CreateWallet creates a new multisig wallet and returns a generated AccAddress
 func (k Keeper) CreateWallet(ctx sdk.Context, creator sdk.AccAddress, owners []sdk.AccAddress, requiredSignatures sdk.Int) sdk.AccAddress {
 	if creator.Empty() {
